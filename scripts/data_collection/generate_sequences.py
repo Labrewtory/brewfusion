@@ -67,7 +67,7 @@ def generate_sequences(json_path: str | None = None) -> list[str]:
         if not isinstance(style, str) or style.strip() in ("", "--"):
             continue
         style = style.strip()
-        style_idx = style_registry.get(style, 0) # Fallback to 0 if unknown
+        style_idx = style_registry.get(style, 0)  # Fallback to 0 if unknown
 
         # Scalar targets
         abv = _safe_float(recipe.get("abv"))

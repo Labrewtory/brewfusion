@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Download and extract BrewFusion model weights from GitHub Releases.
 
-This script fetches the pre-trained DiT checkpoint, GNN embeddings, and 
+This script fetches the pre-trained DiT checkpoint, GNN embeddings, and
 registry mappings necessary for running inference locally without retraining.
 """
 
@@ -25,12 +25,17 @@ DOWNLOAD_URL = f"https://github.com/Labrewtory/brewfusion/releases/download/{REL
 def download_file(url: str, dest: Path) -> None:
     """Download a file with a basic progress indicator."""
     logger.info("Downloading from %s...", url)
+
     def reporthook(blocknum, blocksize, totalsize):
         readsofar = blocknum * blocksize
         if totalsize > 0:
             percent = readsofar * 1e2 / totalsize
             s = "\r%5.1f%% %*d / %d" % (
-                percent, len(str(totalsize)), readsofar, totalsize)
+                percent,
+                len(str(totalsize)),
+                readsofar,
+                totalsize,
+            )
             print(s, end="")
             if readsofar >= totalsize:
                 print()
@@ -70,24 +75,31 @@ def extract_tarball(archive_path: Path, extract_dir: Path) -> None:
 def main():
     target_dir = PROJECT_ROOT / "data"
     target_dir.mkdir(parents=True, exist_ok=True)
-    
+
     archive_path = target_dir / ASSET_NAME
-    
+
     # Check if files already exist via standard paths
-    if (target_dir / "models" / "dit_best.pt").exists() and (target_dir / "graph" / "gnn_embeddings.pt").exists():
-        logger.info("Weights appear to be already installed. Use --force to redownload. (Not implemented)")
+    if (target_dir / "models" / "dit_best.pt").exists() and (
+        target_dir / "graph" / "gnn_embeddings.pt"
+    ).exists():
+        logger.info(
+            "Weights appear to be already installed. Use --force to redownload. (Not implemented)"
+        )
         return
-        
+
     try:
         download_file(DOWNLOAD_URL, archive_path)
         extract_tarball(archive_path, target_dir)
     except Exception as e:
         logger.error("Failed to download weights: %s", e)
-        logger.info("Please download manually from https://github.com/Labrewtory/brewfusion/releases")
+        logger.info(
+            "Please download manually from https://github.com/Labrewtory/brewfusion/releases"
+        )
     finally:
         # Cleanup tarball
         if archive_path.exists():
             archive_path.unlink()
+
 
 if __name__ == "__main__":
     main()

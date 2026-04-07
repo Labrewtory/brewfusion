@@ -167,12 +167,15 @@ def build_graph(parsed: ParsedGraph | None = None) -> HeteroData:
 
     # ── 1. Beer Style nodes (Synced with global registry) ──
     import json
+
     registry_path = PROJECT_ROOT / "src" / "brewfusion" / "data" / "style_registry.json"
     with open(registry_path, "r", encoding="utf-8") as f:
         style_registry = json.load(f)
-    
+
     # Pre-sort style names based on their pre-computed integer indices in the registry
-    style_names = [k for k, v in sorted(style_registry.items(), key=lambda item: item[1])]
+    style_names = [
+        k for k, v in sorted(style_registry.items(), key=lambda item: item[1])
+    ]
     style_map = _build_index_map(style_names)
 
     style_features = []

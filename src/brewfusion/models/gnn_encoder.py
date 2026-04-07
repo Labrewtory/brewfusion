@@ -65,14 +65,13 @@ class HeteroGNNEncoder(nn.Module):
             out_dict = conv(h_dict, edge_index_dict)
 
             # HeteroConv might omit node types that didn't receive any messages.
-            # We must restore them with the correct dimension so subsequent layers or decoders don't crash.
+            # We must restore them and add a residual connection to prevent representation collapse.
             for ntype in h_dict.keys():
                 if ntype not in out_dict:
-                    out_dict[ntype] = torch.zeros(
-                        (h_dict[ntype].shape[0], self.out_dim),
-                        device=h_dict[ntype].device,
-                        dtype=h_dict[ntype].dtype,
-                    )
+                    out_dict[ntype] = h_dict[ntype]  # Carry over representation
+                else:
+                    out_dict[ntype] = out_dict[ntype] + h_dict[ntype]  # Skip connection
+
             h_dict = out_dict
 
             if idx < len(self.convs) - 1:

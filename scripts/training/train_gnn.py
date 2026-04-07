@@ -86,6 +86,11 @@ def train() -> None:
         data = build_graph()
         save_graph(data)
 
+    import torch_geometric.transforms as T
+
+    logger.info("Applying ToUndirected() to enable bidirectional message passing...")
+    data = T.ToUndirected()(data)
+
     data = data.to(DEVICE)
 
     # ── Determine edge types for link prediction ──

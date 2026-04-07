@@ -158,7 +158,7 @@ class BrewFusionDiT(nn.Module):
         seq_len: int = 64,
         num_scalars: int = 3,  # ABV, IBU, Color
         num_styles: int = 180,
-        style_emb_dim: int = 64, # Replaced NLP embedding dimension to match GNN dimension
+        style_emb_dim: int = 64,  # Replaced NLP embedding dimension to match GNN dimension
     ):
         super().__init__()
         self.d_model = d_model

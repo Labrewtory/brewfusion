@@ -60,7 +60,7 @@ def load_model(
         registry_path=str(registry_path),
         gnn_dim=64,
     ).to(DEVICE)
-    
+
     scheduler = DDPMScheduler(num_timesteps=1000, schedule="cosine").to(DEVICE)
 
     checkpoint = torch.load(checkpoint_path, weights_only=False, map_location=DEVICE)
@@ -98,7 +98,9 @@ def decode_embeddings(
     # HybridTokenEmbedding maps tokens [0, vocab_size-1]
     # We can compute it by running a forward pass on all token IDs!
     device = embeddings.device
-    all_token_ids = torch.arange(tokenizer.get_vocab_size(), device=device).unsqueeze(0) # [1, V]
+    all_token_ids = torch.arange(tokenizer.get_vocab_size(), device=device).unsqueeze(
+        0
+    )  # [1, V]
     with torch.no_grad():
         weight = token_emb(all_token_ids).squeeze(0)  # [V, D]
 
@@ -150,8 +152,12 @@ def generate(
         if checkpoint_path is None:
             checkpoint_path = PROJECT_ROOT / "data" / "models" / "dit_best.pt"
         if tokenizer_path is None:
-            tokenizer_path = PROJECT_ROOT / "src" / "brewfusion" / "data" / "brew_tokenizer.json"
-        model, token_emb, scheduler, tokenizer = load_model(checkpoint_path, tokenizer_path)
+            tokenizer_path = (
+                PROJECT_ROOT / "src" / "brewfusion" / "data" / "brew_tokenizer.json"
+            )
+        model, token_emb, scheduler, tokenizer = load_model(
+            checkpoint_path, tokenizer_path
+        )
     else:
         model, token_emb, scheduler, tokenizer = loaded_components
 

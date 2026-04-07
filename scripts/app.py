@@ -102,15 +102,24 @@ if mode == "🚀 Recipe Generator":
 
     abv = st.sidebar.slider(
         "Alcohol By Volume (ABV %)",
-        min_value=0.0, max_value=15.0, value=6.0, step=0.1,
+        min_value=0.0,
+        max_value=15.0,
+        value=6.0,
+        step=0.1,
     )
     ibu = st.sidebar.slider(
         "International Bitterness Units (IBU)",
-        min_value=0.0, max_value=120.0, value=35.0, step=1.0,
+        min_value=0.0,
+        max_value=120.0,
+        value=35.0,
+        step=1.0,
     )
     color = st.sidebar.slider(
         "Color (SRM)",
-        min_value=0.0, max_value=40.0, value=4.0, step=0.1,
+        min_value=0.0,
+        max_value=40.0,
+        value=4.0,
+        step=0.1,
     )
 
     st.sidebar.header("🏷️ Categorical Style")
@@ -131,11 +140,17 @@ if mode == "🚀 Recipe Generator":
     st.sidebar.header("🧠 Generation Logic")
     cfg_scale = st.sidebar.slider(
         "CFG Guidance Scale",
-        min_value=1.0, max_value=10.0, value=3.5, step=0.5,
+        min_value=1.0,
+        max_value=10.0,
+        value=3.5,
+        step=0.5,
         help="Higher values force the model to aggressively obey scalar constraints.",
     )
     num_samples = st.sidebar.number_input(
-        "Number of recipes", min_value=1, max_value=5, value=1,
+        "Number of recipes",
+        min_value=1,
+        max_value=5,
+        value=1,
     )
 
     # --- Main area: Generation ---
@@ -210,13 +225,11 @@ else:
     )
     max_nodes = st.sidebar.slider(
         "Max Nodes (per type)",
-        min_value=10, max_value=60, value=35, step=5,
+        min_value=10,
+        max_value=60,
+        value=35,
+        step=5,
         help="Limit the number of ingredient/compound nodes displayed.",
-    )
-
-    st.info(
-        "💡 **Tip:** Drag nodes to play with the Barnes-Hut gravity simulation, "
-        "or zoom/scroll to explore deep connections."
     )
 
     if st.button("🌌 Render Graph", type="primary"):
@@ -231,4 +244,3 @@ else:
                 components.html(html_str, height=850)
             except Exception as exc:
                 st.error(f"Could not render graph: {exc}")
-

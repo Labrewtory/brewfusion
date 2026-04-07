@@ -226,7 +226,7 @@ def train(epochs: int = EPOCHS) -> None:
         seq_len=DIT_SEQ_LEN,
         num_scalars=3,
         num_styles=180,
-        style_emb_dim=64, # Native GNN dimension natively extracted
+        style_emb_dim=64,  # Native GNN dimension natively extracted
     ).to(DEVICE)
 
     # ── Inject GNN Style Embeddings ──
@@ -234,7 +234,10 @@ def train(epochs: int = EPOCHS) -> None:
         style_tensor = gnn_emb["beer_style"].to(DEVICE)
         model.style_emb.weight.data.copy_(style_tensor)
         model.style_emb.weight.requires_grad = False
-        logger.info("Successfully bound and frozen %s GNN style embeddings to DiT condition table!", str(style_tensor.shape))
+        logger.info(
+            "Successfully bound and frozen %s GNN style embeddings to DiT condition table!",
+            str(style_tensor.shape),
+        )
 
     # Hybrid embedding: GNN vectors for ingredients, learned for structure/numbers
     token_emb = create_hybrid_embedding(vocab_size, DIT_D_MODEL).to(DEVICE)
@@ -262,7 +265,12 @@ def train(epochs: int = EPOCHS) -> None:
     # ── Training loop ──
     best_val_loss = float("inf")
 
-    logger.info("Starting training on %s (Batch size: %d, Epochs: %d)...", DEVICE, TRAIN_BATCH_SIZE, epochs)
+    logger.info(
+        "Starting training on %s (Batch size: %d, Epochs: %d)...",
+        DEVICE,
+        TRAIN_BATCH_SIZE,
+        epochs,
+    )
 
     for epoch in range(1, epochs + 1):
         model.train()
@@ -375,6 +383,7 @@ def train(epochs: int = EPOCHS) -> None:
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=EPOCHS)
     args = parser.parse_args()

@@ -34,12 +34,12 @@ def _load_heterodata() -> object:
 
 # ── Colour / icon palette per node type ──────────────────────────
 _PALETTE = {
-    "beer_style":    {"bg": "#ff5722", "border": "#d84315", "icon": "🍺", "base_sz": 50},
+    "beer_style": {"bg": "#ff5722", "border": "#d84315", "icon": "🍺", "base_sz": 50},
     "sibling_style": {"bg": "#ff8a65", "border": "#e64a19", "icon": "🏷️", "base_sz": 30},
-    "ingredient":    {"bg": "#ffc107", "border": "#ff8f00", "icon": "🌾", "base_sz": 18},
-    "hop":           {"bg": "#4caf50", "border": "#2e7d32", "icon": "🌿", "base_sz": 18},
-    "yeast":         {"bg": "#ab47bc", "border": "#7b1fa2", "icon": "🧫", "base_sz": 22},
-    "compound":      {"bg": "#03a9f4", "border": "#0277bd", "icon": "🧪", "base_sz": 20},
+    "ingredient": {"bg": "#ffc107", "border": "#ff8f00", "icon": "🌾", "base_sz": 18},
+    "hop": {"bg": "#4caf50", "border": "#2e7d32", "icon": "🌿", "base_sz": 18},
+    "yeast": {"bg": "#ab47bc", "border": "#7b1fa2", "icon": "🧫", "base_sz": 22},
+    "compound": {"bg": "#03a9f4", "border": "#0277bd", "icon": "🧪", "base_sz": 20},
 }
 
 
@@ -63,7 +63,9 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
             break
 
     if style_idx is None:
-        raise ValueError(f"Style '{style_name}' not found in graph ({len(style_names)} styles)")
+        raise ValueError(
+            f"Style '{style_name}' not found in graph ({len(style_names)} styles)"
+        )
 
     resolved_name = style_names[style_idx]
 
@@ -91,9 +93,9 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
     # Deduplicate & keep top-N per type
     budget = {
         "ingredient": int(max_nodes * 0.35),
-        "hop":        int(max_nodes * 0.30),
-        "yeast":      int(max_nodes * 0.15),
-        "compound":   int(max_nodes * 0.20),
+        "hop": int(max_nodes * 0.30),
+        "yeast": int(max_nodes * 0.15),
+        "compound": int(max_nodes * 0.20),
     }
 
     top_neighbours: dict[str, list[tuple[int, str, int]]] = {}
@@ -127,7 +129,9 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
             src_names_list = data[src_type].names
             dst_names_list = data[dst_type].names
 
-            selected_src_indices = {idx for idx, _, _ in top_neighbours.get(src_type, [])}
+            selected_src_indices = {
+                idx for idx, _, _ in top_neighbours.get(src_type, [])
+            }
 
             for col in range(ei.shape[1]):
                 si, di = ei[0, col].item(), ei[1, col].item()
@@ -137,8 +141,12 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
                     compound_idx_map[cname] = di
                     compound_src[cname].add(src_names_list[si])
 
-        ranked_compounds = sorted(compound_counts.items(), key=lambda x: -x[1])[: budget["compound"]]
-        top_neighbours["compound"] = [(compound_idx_map[n], n, c) for n, c in ranked_compounds]
+        ranked_compounds = sorted(compound_counts.items(), key=lambda x: -x[1])[
+            : budget["compound"]
+        ]
+        top_neighbours["compound"] = [
+            (compound_idx_map[n], n, c) for n, c in ranked_compounds
+        ]
 
     # ── HOP 3: compound ↔ similar compound & ingredient co-occurrence
     hop3_edges: list[tuple[str, str, int]] = []
@@ -149,12 +157,17 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
         if et_sim in data.edge_types:
             ei = data[et_sim].edge_index
             cmp_names = data["compound"].names
-            selected_compound_indices = {idx for idx, _, _ in top_neighbours.get("compound", [])}
+            selected_compound_indices = {
+                idx for idx, _, _ in top_neighbours.get("compound", [])
+            }
             new_compounds: dict[str, int] = {}
 
             for col in range(ei.shape[1]):
                 si, di = ei[0, col].item(), ei[1, col].item()
-                if si in selected_compound_indices and di not in selected_compound_indices:
+                if (
+                    si in selected_compound_indices
+                    and di not in selected_compound_indices
+                ):
                     cname = cmp_names[di]
                     if cname not in new_compounds:
                         new_compounds[cname] = di
@@ -170,7 +183,9 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
         if et_cooc in data.edge_types:
             ei = data[et_cooc].edge_index
             ing_names = data["ingredient"].names
-            selected_ing_indices = {idx for idx, _, _ in top_neighbours.get("ingredient", [])}
+            selected_ing_indices = {
+                idx for idx, _, _ in top_neighbours.get("ingredient", [])
+            }
             cooc_counts: dict[str, int] = defaultdict(int)
             cooc_idx_map: dict[str, int] = {}
 
@@ -184,7 +199,9 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
             # Add top 6 co-occurring ingredients
             cooc_ranked = sorted(cooc_counts.items(), key=lambda x: -x[1])[:6]
             for iname, cnt in cooc_ranked:
-                top_neighbours.setdefault("ingredient", []).append((cooc_idx_map[iname], iname, cnt))
+                top_neighbours.setdefault("ingredient", []).append(
+                    (cooc_idx_map[iname], iname, cnt)
+                )
                 # Find which selected ingredient co-occurs with this new one
                 for col in range(ei.shape[1]):
                     si, di = ei[0, col].item(), ei[1, col].item()
@@ -210,7 +227,9 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
 
             hcooc_ranked = sorted(hcooc_counts.items(), key=lambda x: -x[1])[:4]
             for hname, cnt in hcooc_ranked:
-                top_neighbours.setdefault("hop", []).append((hcooc_idx_map[hname], hname, cnt))
+                top_neighbours.setdefault("hop", []).append(
+                    (hcooc_idx_map[hname], hname, cnt)
+                )
                 for col in range(ei.shape[1]):
                     si, di = ei[0, col].item(), ei[1, col].item()
                     if di == hcooc_idx_map[hname] and si in selected_hop_indices:
@@ -234,7 +253,7 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
     for _, cname, _ in top_neighbours.get("compound", []):
         for src_name in compound_src.get(cname, set()):
             if src_name in G:
-                G.add_edge(src_name, cname, weight=2)
+                G.add_edge(src_name, cname, weight=0.5)
 
     # 3-hop edges
     for src, dst, w in hop3_edges:
@@ -243,12 +262,16 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
 
     # ── Sibling styles: other styles sharing the same ingredients ─
     # Reverse-traverse: ingredient/hop/yeast → which other styles use it?
-    sibling_score: dict[str, int] = defaultdict(int)    # style_name → shared count
-    sibling_shared: dict[str, set[str]] = defaultdict(set)  # style_name → set of shared node names
+    sibling_score: dict[str, int] = defaultdict(int)  # style_name → shared count
+    sibling_shared: dict[str, set[str]] = defaultdict(
+        set
+    )  # style_name → set of shared node names
 
     selected_indices_by_type: dict[str, set[int]] = {}
     for ntype in ["ingredient", "hop", "yeast"]:
-        selected_indices_by_type[ntype] = {idx for idx, _, _ in top_neighbours.get(ntype, [])}
+        selected_indices_by_type[ntype] = {
+            idx for idx, _, _ in top_neighbours.get(ntype, [])
+        }
 
     for rel, dst_type in edge_meta:
         et = ("beer_style", rel, dst_type)
@@ -312,9 +335,12 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
             },
         )
 
+    import math
     for u, v, edata in G.edges(data=True):
         ew = edata.get("weight", 1)
-        net.add_edge(u, v, value=ew, color="#cfd8dc", title=f"Weight: {ew}")
+        # Apply logarithmic scale to visual thickness, and use absolute 'width' instead of 'value'
+        scaled_w = max(0.5, math.log1p(ew)) if getattr(ew, "real", 1) >= 1 else ew
+        net.add_edge(u, v, width=scaled_w, color="#cfd8dc", title=f"Weight: {ew}")
 
     # ── Save and return HTML ─────────────────────────────────────
     safe_name = style_name.replace("/", "-").replace("\\", "-").replace(" ", "_")
@@ -349,30 +375,33 @@ def build_style_embedding_map() -> str:
 
     # t-SNE → 2D
     coords = TSNE(
-        n_components=2, perplexity=min(15, len(style_names) - 1),
-        random_state=42, init="random", learning_rate="auto",
+        n_components=2,
+        perplexity=min(15, len(style_names) - 1),
+        random_state=42,
+        init="random",
+        learning_rate="auto",
     ).fit_transform(emb_np)
 
     # Macro-category colour mapping
     _MACRO = {
-        "ipa":     "#4caf50",
-        "pale":    "#8bc34a",
-        "ale":     "#ff9800",
-        "stout":   "#5d4037",
-        "porter":  "#795548",
-        "lager":   "#2196f3",
+        "ipa": "#4caf50",
+        "pale": "#8bc34a",
+        "ale": "#ff9800",
+        "stout": "#5d4037",
+        "porter": "#795548",
+        "lager": "#2196f3",
         "pilsner": "#03a9f4",
-        "wheat":   "#ffc107",
-        "weizen":  "#ffc107",
+        "wheat": "#ffc107",
+        "weizen": "#ffc107",
         "belgian": "#e91e63",
-        "saison":  "#f06292",
-        "sour":    "#ff5252",
-        "amber":   "#ff7043",
-        "brown":   "#a1887f",
-        "barley":  "#6d4c41",
-        "scotch":  "#8d6e63",
-        "bock":    "#7e57c2",
-        "bitter":  "#cddc39",
+        "saison": "#f06292",
+        "sour": "#ff5252",
+        "amber": "#ff7043",
+        "brown": "#a1887f",
+        "barley": "#6d4c41",
+        "scotch": "#8d6e63",
+        "bock": "#7e57c2",
+        "bitter": "#cddc39",
     }
 
     def _macro_color(name: str) -> str:
@@ -392,7 +421,11 @@ def build_style_embedding_map() -> str:
         return out_lo + (v - vmin) / (vmax - vmin) * (out_hi - out_lo)
 
     net = Network(
-        height="850px", width="100%", bgcolor="#1e1e2e", font_color="#cdd6f4", directed=False,
+        height="850px",
+        width="100%",
+        bgcolor="#1e1e2e",
+        font_color="#cdd6f4",
+        directed=False,
     )
     net.toggle_physics(False)  # fixed positions
 
@@ -404,9 +437,14 @@ def build_style_embedding_map() -> str:
             name,
             label=name,
             title=f"{name}\nGNN idx: {i}",
-            x=px, y=py,
+            x=px,
+            y=py,
             size=18,
-            color={"background": col, "border": col, "highlight": {"background": "#ffffff", "border": col}},
+            color={
+                "background": col,
+                "border": col,
+                "highlight": {"background": "#ffffff", "border": col},
+            },
             font={"color": "#cdd6f4", "size": 10, "face": "sans-serif"},
             fixed=True,
         )
@@ -420,8 +458,10 @@ def build_style_embedding_map() -> str:
         for j in range(i + 1, len(style_names)):
             if sim[i, j].item() > threshold:
                 net.add_edge(
-                    style_names[i], style_names[j],
-                    value=1, color={"color": "#45475a", "opacity": 0.3},
+                    style_names[i],
+                    style_names[j],
+                    value=1,
+                    color={"color": "#45475a", "opacity": 0.3},
                     title=f"Cosine sim: {sim[i, j].item():.3f}",
                 )
 
@@ -472,14 +512,21 @@ def build_full_graph_overview(
 
     keep_ingredient = _top_by_degree(
         "ingredient",
-        [("beer_style", "uses_grain", "ingredient"), ("beer_style", "uses_adjunct", "ingredient")],
+        [
+            ("beer_style", "uses_grain", "ingredient"),
+            ("beer_style", "uses_adjunct", "ingredient"),
+        ],
         top_ingredients,
     )
     keep_hop = _top_by_degree(
-        "hop", [("beer_style", "uses_hop", "hop")], top_hops,
+        "hop",
+        [("beer_style", "uses_hop", "hop")],
+        top_hops,
     )
     keep_yeast = _top_by_degree(
-        "yeast", [("beer_style", "uses_yeast", "yeast")], top_yeasts,
+        "yeast",
+        [("beer_style", "uses_yeast", "yeast")],
+        top_yeasts,
     )
 
     for idx in keep_ingredient:
@@ -491,10 +538,34 @@ def build_full_graph_overview(
 
     # ── Add edges (only between visible nodes) ───────────────────
     edge_configs = [
-        (("beer_style", "uses_grain", "ingredient"), style_names, data["ingredient"].names, None, keep_ingredient),
-        (("beer_style", "uses_hop", "hop"), style_names, data["hop"].names, None, keep_hop),
-        (("beer_style", "uses_yeast", "yeast"), style_names, data["yeast"].names, None, keep_yeast),
-        (("beer_style", "uses_adjunct", "ingredient"), style_names, data["ingredient"].names, None, keep_ingredient),
+        (
+            ("beer_style", "uses_grain", "ingredient"),
+            style_names,
+            data["ingredient"].names,
+            None,
+            keep_ingredient,
+        ),
+        (
+            ("beer_style", "uses_hop", "hop"),
+            style_names,
+            data["hop"].names,
+            None,
+            keep_hop,
+        ),
+        (
+            ("beer_style", "uses_yeast", "yeast"),
+            style_names,
+            data["yeast"].names,
+            None,
+            keep_yeast,
+        ),
+        (
+            ("beer_style", "uses_adjunct", "ingredient"),
+            style_names,
+            data["ingredient"].names,
+            None,
+            keep_ingredient,
+        ),
     ]
 
     for et, src_names, dst_names, src_keep, dst_keep in edge_configs:
@@ -503,14 +574,20 @@ def build_full_graph_overview(
         ei = data[et].edge_index
         for col in range(ei.shape[1]):
             si, di = ei[0, col].item(), ei[1, col].item()
-            if (src_keep is None or si in src_keep) and (dst_keep is None or di in dst_keep):
+            if (src_keep is None or si in src_keep) and (
+                dst_keep is None or di in dst_keep
+            ):
                 sn, dn = src_names[si], dst_names[di]
                 if sn in G and dn in G:
                     G.add_edge(sn, dn)
 
     # ── Render ───────────────────────────────────────────────────
     net = Network(
-        height="850px", width="100%", bgcolor="#1e1e2e", font_color="#cdd6f4", directed=False,
+        height="850px",
+        width="100%",
+        bgcolor="#1e1e2e",
+        font_color="#cdd6f4",
+        directed=False,
     )
     net.force_atlas_2based(spring_length=120, damping=0.9, overlap=0.8)
     net.toggle_physics(True)
@@ -523,10 +600,14 @@ def build_full_graph_overview(
         net.add_node(
             node,
             label=f"{pal['icon']} {node}",
-            title=f"{ntype.replace('_',' ').title()}\nConnections: {deg}",
+            title=f"{ntype.replace('_', ' ').title()}\nConnections: {deg}",
             size=sz,
             color={"background": pal["bg"], "border": pal["border"]},
-            font={"color": "#cdd6f4", "size": 10 if ntype != "beer_style" else 12, "face": "sans-serif"},
+            font={
+                "color": "#cdd6f4",
+                "size": 10 if ntype != "beer_style" else 12,
+                "face": "sans-serif",
+            },
         )
 
     for u, v in G.edges():
@@ -541,7 +622,9 @@ def build_full_graph_overview(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--style", type=str, default="Stout")
-    parser.add_argument("--mode", choices=["subgraph", "embedding", "full"], default="subgraph")
+    parser.add_argument(
+        "--mode", choices=["subgraph", "embedding", "full"], default="subgraph"
+    )
     args = parser.parse_args()
 
     if args.mode == "subgraph":
