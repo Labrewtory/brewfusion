@@ -189,6 +189,7 @@ def train(epochs: int = EPOCHS) -> None:
     # ── Load GNN embeddings for cross-attention ──
     # Reduce to GNN_MEMORY_SIZE centroids via K-means to speed up cross-attention
     gnn_memory = None
+    gnn_emb = {}
     if gnn_emb_path.exists():
         gnn_emb = torch.load(gnn_emb_path, weights_only=False)
         memory_parts = []
@@ -225,8 +226,15 @@ def train(epochs: int = EPOCHS) -> None:
         seq_len=DIT_SEQ_LEN,
         num_scalars=3,
         num_styles=180,
-        style_emb_dim=32,
+        style_emb_dim=64, # Native GNN dimension natively extracted
     ).to(DEVICE)
+
+    # ── Inject GNN Style Embeddings ──
+    if "beer_style" in gnn_emb:
+        style_tensor = gnn_emb["beer_style"].to(DEVICE)
+        model.style_emb.weight.data.copy_(style_tensor)
+        model.style_emb.weight.requires_grad = False
+        logger.info("Successfully bound and frozen %s GNN style embeddings to DiT condition table!", str(style_tensor.shape))
 
     # Hybrid embedding: GNN vectors for ingredients, learned for structure/numbers
     token_emb = create_hybrid_embedding(vocab_size, DIT_D_MODEL).to(DEVICE)

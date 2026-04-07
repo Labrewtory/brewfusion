@@ -38,6 +38,7 @@ from brewfusion.config import (
     EDGE_YEAST_PRODUCES,
     GRAPH_DIR,
     NODE_BEER_STYLE,
+    PROJECT_ROOT,
     NODE_COMPOUND,
     NODE_HOP,
     NODE_INGREDIENT,
@@ -164,13 +165,19 @@ def build_graph(parsed: ParsedGraph | None = None) -> HeteroData:
 
     data = HeteroData()
 
-    # ── 1. Beer Style nodes ──
-    style_names = sorted(parsed.beer_styles.keys())
+    # ── 1. Beer Style nodes (Synced with global registry) ──
+    import json
+    registry_path = PROJECT_ROOT / "src" / "brewfusion" / "data" / "style_registry.json"
+    with open(registry_path, "r", encoding="utf-8") as f:
+        style_registry = json.load(f)
+    
+    # Pre-sort style names based on their pre-computed integer indices in the registry
+    style_names = [k for k, v in sorted(style_registry.items(), key=lambda item: item[1])]
     style_map = _build_index_map(style_names)
 
     style_features = []
     for name in style_names:
-        feat = parsed.beer_styles[name]
+        feat = parsed.beer_styles.get(name, {})
         style_features.append([feat.get(col, 0.0) for col in BEER_NUMERIC_FEATURES])
 
     data[NODE_BEER_STYLE].x = torch.tensor(style_features, dtype=torch.float32)
