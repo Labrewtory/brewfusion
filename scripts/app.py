@@ -208,21 +208,10 @@ else:
         index=14 if 14 in STYLE_REGISTRY else 0,
         key="graph_style_selector",
     )
-    n_hops = st.sidebar.radio(
-        "Traversal Depth",
-        [1, 2, 3],
-        index=1,
-        format_func=lambda x: {
-            1: "1-hop (Style → Ingredients)",
-            2: "2-hop (+ Compounds)",
-            3: "3-hop (+ Co-occurrence & Similarity)",
-        }[x],
-        key="graph_n_hops",
-    )
     max_nodes = st.sidebar.slider(
         "Max Nodes (per type)",
         min_value=10, max_value=60, value=35, step=5,
-        help="Limit the number of ingredient/compound nodes in the 1-hop ring.",
+        help="Limit the number of ingredient/compound nodes displayed.",
     )
 
     st.info(
@@ -231,15 +220,15 @@ else:
     )
 
     if st.button("🌌 Render Graph", type="primary"):
-        hop_label = {1: "1-hop", 2: "2-hop", 3: "3-hop"}[n_hops]
-        with st.spinner(f"Extracting {hop_label} neighbourhood from PyG HeteroData..."):
+        with st.spinner("Extracting neighbourhood from PyG HeteroData..."):
             from scripts.visualize_style_graph import build_style_subgraph
             import streamlit.components.v1 as components
 
             style_name = STYLE_REGISTRY[graph_style_idx].split(" - ", 1)[1]
             try:
-                html_str = build_style_subgraph(style_name, max_nodes=max_nodes, n_hops=n_hops)
-                st.success(f"Rendered **{hop_label}** subgraph for **{style_name}**!")
+                html_str = build_style_subgraph(style_name, max_nodes=max_nodes)
+                st.success(f"Rendered subgraph for **{style_name}**!")
                 components.html(html_str, height=850)
             except Exception as exc:
                 st.error(f"Could not render graph: {exc}")
+
