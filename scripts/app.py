@@ -24,6 +24,28 @@ def get_model_components():
         
     return load_model(checkpoint_path, tokenizer_path)
 
+def format_recipe_readable(raw_text: str) -> str:
+    """Format raw BPE token sequences into a human-readable structure."""
+    text = raw_text.replace(" _", "_").replace("_ ", "_").replace("  ", " ")
+    
+    # Structural Markers
+    text = text.replace("[BOIL_START]", "\n\n🔥 **Boil Start:**")
+    text = text.replace("[BOIL]", "\n\n⏱️ **Boil Process:**")
+    text = text.replace("[HOP]", "\n\n🪴 **Hop Addition:**")
+    text = text.replace("[MASH_STEP]", "\n\n💧 **Mash Step:**")
+    text = text.replace("[FERMENTATION]", "\n\n🧪 **Fermentation:**")
+    text = text.replace("[TARGET_IBU]", "\n\n🎯 **Stats/Targets:** TARGET_IBU")
+    
+    # Units
+    text = text.replace("<KG>", "kg")
+    text = text.replace("<G>", "g")
+    text = text.replace("<MIN>", "min")
+    text = text.replace("<L>", "L")
+    
+    # Generic spaces and clean up
+    text = " ".join(word for word in text.split(" ") if word)
+    return text
+
 # --- UI Setup ---
 st.set_page_config(
     page_title="BrewFusion | Sequence-Based Recipe Generation",
@@ -91,7 +113,12 @@ if st.button("🍻 Generate Recipe Matrix", type="primary"):
             # Formatting results
             for i, recipe in enumerate(results):
                 st.subheader(f"Recipe Option #{i+1}")
-                st.code(recipe, language="text")
+                
+                tab1, tab2 = st.tabs(["📝 Readable Format", "⚙️ Raw Tokens"])
+                with tab1:
+                    st.markdown(format_recipe_readable(recipe))
+                with tab2:
+                    st.code(recipe, language="text")
                 
                 # Check for white stout anomaly visually
                 if color <= 6.0 and "DARK_" in recipe:
