@@ -1,0 +1,164 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #f8f9fa;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#ff5722", "border": "#d84315", "highlight": {"background": "#ff5722", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Weizen/Weissbier", "label": "\ud83c\udf7a Weizen/Weissbier", "shape": "dot", "size": 45, "title": "Type: Style\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Hallertau Hersbrucker", "label": "\ud83c\udf3f Hallertau Hersbrucker", "shape": "dot", "size": 33, "title": "Type: Hop\\nWeight: 273"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Hallertau Mittelfruh", "label": "\ud83c\udf3f Hallertau Mittelfruh", "shape": "dot", "size": 33, "title": "Type: Hop\\nWeight: 262"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Saaz", "label": "\ud83c\udf3f Saaz", "shape": "dot", "size": 30, "title": "Type: Hop\\nWeight: 203"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Farnesene", "label": "\ud83e\uddea Farnesene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Tettnanger", "label": "\ud83c\udf3f Tettnanger", "shape": "dot", "size": 29, "title": "Type: Hop\\nWeight: 198"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Domestic Hallertau", "label": "\ud83c\udf3f Domestic Hallertau", "shape": "dot", "size": 28, "title": "Type: Hop\\nWeight: 178"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Cascade", "label": "\ud83c\udf3f Cascade", "shape": "dot", "size": 27, "title": "Type: Hop\\nWeight: 153"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Myrcene", "label": "\ud83e\uddea Myrcene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Citra", "label": "\ud83c\udf3f Citra", "shape": "dot", "size": 24, "title": "Type: Hop\\nWeight: 94"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Linalool", "label": "\ud83e\uddea Linalool", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Geraniol", "label": "\ud83e\uddea Geraniol", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Perle", "label": "\ud83c\udf3f Perle", "shape": "dot", "size": 24, "title": "Type: Hop\\nWeight: 84"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Hersbrucker", "label": "\ud83c\udf3f Hersbrucker", "shape": "dot", "size": 22, "title": "Type: Hop\\nWeight: 58"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Magnum", "label": "\ud83c\udf3f Magnum", "shape": "dot", "size": 22, "title": "Type: Hop\\nWeight: 57"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Humulene", "label": "\ud83e\uddea Humulene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Pinene", "label": "\ud83e\uddea Pinene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Amarillo", "label": "\ud83c\udf3f Amarillo", "shape": "dot", "size": 22, "title": "Type: Hop\\nWeight: 47"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Willamette", "label": "\ud83c\udf3f Willamette", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 39"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Centennial", "label": "\ud83c\udf3f Centennial", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 39"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "East Kent Goldings", "label": "\ud83c\udf3f East Kent Goldings", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 33"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Mandarina Bavaria", "label": "\ud83c\udf3f Mandarina Bavaria", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 31"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Spalt", "label": "\ud83c\udf3f Spalt", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 30"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Mosaic", "label": "\ud83c\udf3f Mosaic", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 30"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Sorachi Ace", "label": "\ud83c\udf3f Sorachi Ace", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 28"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Northern Brewer - Hallertau", "label": "\ud83c\udf3f Northern Brewer - Hallertau", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 27"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Northern Brewer", "label": "\ud83c\udf3f Northern Brewer", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 26"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Saphir", "label": "\ud83c\udf3f Saphir", "shape": "dot", "size": 21, "title": "Type: Hop\\nWeight: 25"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "German - Pilsner", "label": "\ud83c\udf3e German - Pilsner", "shape": "dot", "size": 42, "title": "Type: Malt\\nWeight: 445"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "German - Wheat Malt", "label": "\ud83c\udf3e German - Wheat Malt", "shape": "dot", "size": 41, "title": "Type: Malt\\nWeight: 430"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Pale 2-Row", "label": "\ud83c\udf3e American - Pale 2-Row", "shape": "dot", "size": 29, "title": "Type: Malt\\nWeight: 187"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - White Wheat", "label": "\ud83c\udf3e American - White Wheat", "shape": "dot", "size": 27, "title": "Type: Malt\\nWeight: 149"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Rice Hulls", "label": "\ud83c\udf3e Rice Hulls", "shape": "dot", "size": 26, "title": "Type: Malt\\nWeight: 136"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Wheat", "label": "\ud83c\udf3e American - Wheat", "shape": "dot", "size": 26, "title": "Type: Malt\\nWeight: 133"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Dry Malt Extract - Wheat", "label": "\ud83c\udf3e Dry Malt Extract - Wheat", "shape": "dot", "size": 26, "title": "Type: Malt\\nWeight: 126"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Pilsner", "label": "\ud83c\udf3e American - Pilsner", "shape": "dot", "size": 26, "title": "Type: Malt\\nWeight: 124"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Flaked Wheat", "label": "\ud83c\udf3e Flaked Wheat", "shape": "dot", "size": 25, "title": "Type: Malt\\nWeight: 114"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Liquid Malt Extract - Wheat", "label": "\ud83c\udf3e Liquid Malt Extract - Wheat", "shape": "dot", "size": 24, "title": "Type: Malt\\nWeight: 99"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "German - Pale Wheat", "label": "\ud83c\udf3e German - Pale Wheat", "shape": "dot", "size": 24, "title": "Type: Malt\\nWeight: 96"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "German - Munich Light", "label": "\ud83c\udf3e German - Munich Light", "shape": "dot", "size": 24, "title": "Type: Malt\\nWeight: 84"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "German - Acidulated Malt", "label": "\ud83c\udf3e German - Acidulated Malt", "shape": "dot", "size": 23, "title": "Type: Malt\\nWeight: 75"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Flaked Oats", "label": "\ud83c\udf3e Flaked Oats", "shape": "dot", "size": 23, "title": "Type: Malt\\nWeight: 73"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "German - Pale Ale", "label": "\ud83c\udf3e German - Pale Ale", "shape": "dot", "size": 22, "title": "Type: Malt\\nWeight: 56"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "German - Vienna", "label": "\ud83c\udf3e German - Vienna", "shape": "dot", "size": 22, "title": "Type: Malt\\nWeight: 56"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Belgian - Wheat", "label": "\ud83c\udf3e Belgian - Wheat", "shape": "dot", "size": 22, "title": "Type: Malt\\nWeight: 51"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Honey", "label": "\ud83c\udf3e Honey", "shape": "dot", "size": 22, "title": "Type: Malt\\nWeight: 49"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "German - Carapils", "label": "\ud83c\udf3e German - Carapils", "shape": "dot", "size": 22, "title": "Type: Malt\\nWeight: 48"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Belgian - Pilsner", "label": "\ud83c\udf3e Belgian - Pilsner", "shape": "dot", "size": 22, "title": "Type: Malt\\nWeight: 46"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Red Wheat", "label": "\ud83c\udf3e American - Red Wheat", "shape": "dot", "size": 22, "title": "Type: Malt\\nWeight: 43"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Wyeast - Weihenstephan Weizen 3068", "label": "\ud83e\uddeb Wyeast - Weihenstephan Weizen 3068", "shape": "dot", "size": 35, "title": "Type: Yeast\\nWeight: 260"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Fermentis - Safbrew - Wheat Beer Yeast WB-06", "label": "\ud83e\uddeb Fermentis - Safbrew - Wheat Beer Yeast WB-06", "shape": "dot", "size": 33, "title": "Type: Yeast\\nWeight: 221"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "White Labs - Hefeweizen Ale Yeast WLP300", "label": "\ud83e\uddeb White Labs - Hefeweizen Ale Yeast WLP300", "shape": "dot", "size": 30, "title": "Type: Yeast\\nWeight: 167"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "- -", "label": "\ud83e\uddeb - -", "shape": "dot", "size": 25, "title": "Type: Yeast\\nWeight: 76"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "White Labs - Hefeweizen IV Ale Yeast\u00a0WLP380", "label": "\ud83e\uddeb White Labs - Hefeweizen IV Ale Yeast\u00a0WLP380", "shape": "dot", "size": 24, "title": "Type: Yeast\\nWeight: 57"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Danstar - Munich Dry Wheat Yeast", "label": "\ud83e\uddeb Danstar - Munich Dry Wheat Yeast", "shape": "dot", "size": 24, "title": "Type: Yeast\\nWeight: 51"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "White Labs - American Hefeweizen Ale Yeast WLP320", "label": "\ud83e\uddeb White Labs - American Hefeweizen Ale Yeast WLP320", "shape": "dot", "size": 23, "title": "Type: Yeast\\nWeight: 34"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Mangrove Jack - Bavarian Wheat Yeast M20", "label": "\ud83e\uddeb Mangrove Jack - Bavarian Wheat Yeast M20", "shape": "dot", "size": 23, "title": "Type: Yeast\\nWeight: 34"}, {"color": {"background": "#ab47bc", "border": "#7b1fa2", "highlight": {"background": "#ab47bc", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Fermentis - Safale - American Ale Yeast US-05", "label": "\ud83e\uddeb Fermentis - Safale - American Ale Yeast US-05", "shape": "dot", "size": 23, "title": "Type: Yeast\\nWeight: 33"}]);
+                  edges = new vis.DataSet([{"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 27", "to": "Hallertau Hersbrucker", "value": 27}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 26", "to": "Hallertau Mittelfruh", "value": 26}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 20", "to": "Saaz", "value": 20}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 19", "to": "Tettnanger", "value": 19}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 17", "to": "Domestic Hallertau", "value": 17}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 15", "to": "Cascade", "value": 15}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 9", "to": "Citra", "value": 9}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 8", "to": "Perle", "value": 8}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 5", "to": "Hersbrucker", "value": 5}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 5", "to": "Magnum", "value": 5}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 4", "to": "Amarillo", "value": 4}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "Willamette", "value": 3}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "Centennial", "value": 3}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "East Kent Goldings", "value": 3}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "Mandarina Bavaria", "value": 3}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "Spalt", "value": 3}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "Mosaic", "value": 3}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 2", "to": "Sorachi Ace", "value": 2}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 2", "to": "Northern Brewer - Hallertau", "value": 2}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 2", "to": "Northern Brewer", "value": 2}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 2", "to": "Saphir", "value": 2}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 44", "to": "German - Pilsner", "value": 44}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 43", "to": "German - Wheat Malt", "value": 43}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 18", "to": "American - Pale 2-Row", "value": 18}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 14", "to": "American - White Wheat", "value": 14}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 13", "to": "Rice Hulls", "value": 13}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 13", "to": "American - Wheat", "value": 13}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 12", "to": "Dry Malt Extract - Wheat", "value": 12}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 12", "to": "American - Pilsner", "value": 12}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 11", "to": "Flaked Wheat", "value": 11}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 9", "to": "Liquid Malt Extract - Wheat", "value": 9}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 9", "to": "German - Pale Wheat", "value": 9}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 8", "to": "German - Munich Light", "value": 8}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 7", "to": "German - Acidulated Malt", "value": 7}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 7", "to": "Flaked Oats", "value": 7}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 5", "to": "German - Pale Ale", "value": 5}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 5", "to": "German - Vienna", "value": 5}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 5", "to": "Belgian - Wheat", "value": 5}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 4", "to": "Honey", "value": 4}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 4", "to": "German - Carapils", "value": 4}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 4", "to": "Belgian - Pilsner", "value": 4}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 4", "to": "American - Red Wheat", "value": 4}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 26", "to": "Wyeast - Weihenstephan Weizen 3068", "value": 26}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 22", "to": "Fermentis - Safbrew - Wheat Beer Yeast WB-06", "value": 22}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 16", "to": "White Labs - Hefeweizen Ale Yeast WLP300", "value": 16}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 7", "to": "- -", "value": 7}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 5", "to": "White Labs - Hefeweizen IV Ale Yeast\u00a0WLP380", "value": 5}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 5", "to": "Danstar - Munich Dry Wheat Yeast", "value": 5}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "White Labs - American Hefeweizen Ale Yeast WLP320", "value": 3}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "Mangrove Jack - Bavarian Wheat Yeast M20", "value": 3}, {"color": "#cfd8dc", "from": "Weizen/Weissbier", "title": "Co-occurrence / Mapping: 3", "to": "Fermentis - Safale - American Ale Yeast US-05", "value": 3}, {"color": "#cfd8dc", "from": "Saaz", "title": "Co-occurrence / Mapping: 5", "to": "Farnesene", "value": 5}, {"color": "#cfd8dc", "from": "Farnesene", "title": "Co-occurrence / Mapping: 5", "to": "Cascade", "value": 5}, {"color": "#cfd8dc", "from": "Cascade", "title": "Co-occurrence / Mapping: 5", "to": "Myrcene", "value": 5}, {"color": "#cfd8dc", "from": "Myrcene", "title": "Co-occurrence / Mapping: 5", "to": "Citra", "value": 5}, {"color": "#cfd8dc", "from": "Myrcene", "title": "Co-occurrence / Mapping: 5", "to": "Amarillo", "value": 5}, {"color": "#cfd8dc", "from": "Myrcene", "title": "Co-occurrence / Mapping: 5", "to": "Centennial", "value": 5}, {"color": "#cfd8dc", "from": "Citra", "title": "Co-occurrence / Mapping: 5", "to": "Linalool", "value": 5}, {"color": "#cfd8dc", "from": "Citra", "title": "Co-occurrence / Mapping: 5", "to": "Geraniol", "value": 5}, {"color": "#cfd8dc", "from": "Linalool", "title": "Co-occurrence / Mapping: 5", "to": "Centennial", "value": 5}, {"color": "#cfd8dc", "from": "Magnum", "title": "Co-occurrence / Mapping: 5", "to": "Humulene", "value": 5}, {"color": "#cfd8dc", "from": "Magnum", "title": "Co-occurrence / Mapping: 5", "to": "Pinene", "value": 5}, {"color": "#cfd8dc", "from": "Humulene", "title": "Co-occurrence / Mapping: 5", "to": "East Kent Goldings", "value": 5}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "forceAtlas2Based": {
+            "avoidOverlap": 1,
+            "centralGravity": 0.01,
+            "damping": 0.9,
+            "gravitationalConstant": -50,
+            "springConstant": 0.08,
+            "springLength": 150
+        },
+        "solver": "forceAtlas2Based",
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
