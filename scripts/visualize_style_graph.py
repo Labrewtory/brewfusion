@@ -317,9 +317,8 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
         net.add_edge(u, v, value=ew, color="#cfd8dc", title=f"Weight: {ew}")
 
     # ── Save and return HTML ─────────────────────────────────────
-    root = Path(__file__).resolve().parent.parent
     safe_name = style_name.replace("/", "-").replace("\\", "-").replace(" ", "_")
-    out_path = root / f"style_graph_{safe_name}.html"
+    out_path = Path(f"/tmp/style_graph_{safe_name}.html")
     net.save_graph(str(out_path))
 
     with open(out_path, "r", encoding="utf-8") as f:
@@ -426,7 +425,7 @@ def build_style_embedding_map() -> str:
                     title=f"Cosine sim: {sim[i, j].item():.3f}",
                 )
 
-    out_path = root / "style_embedding_map.html"
+    out_path = Path("/tmp/style_embedding_map.html")
     net.save_graph(str(out_path))
     with open(out_path, "r", encoding="utf-8") as f:
         return f.read()
@@ -533,8 +532,7 @@ def build_full_graph_overview(
     for u, v in G.edges():
         net.add_edge(u, v, color={"color": "#45475a", "opacity": 0.15})
 
-    root = Path(__file__).resolve().parent.parent
-    out_path = root / "style_full_graph.html"
+    out_path = Path("/tmp/style_full_graph.html")
     net.save_graph(str(out_path))
     with open(out_path, "r", encoding="utf-8") as f:
         return f.read()
