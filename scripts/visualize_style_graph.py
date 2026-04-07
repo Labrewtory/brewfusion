@@ -34,11 +34,12 @@ def _load_heterodata() -> object:
 
 # ── Colour / icon palette per node type ──────────────────────────
 _PALETTE = {
-    "beer_style": {"bg": "#ff5722", "border": "#d84315", "icon": "🍺", "base_sz": 50},
-    "ingredient": {"bg": "#ffc107", "border": "#ff8f00", "icon": "🌾", "base_sz": 18},
-    "hop":        {"bg": "#4caf50", "border": "#2e7d32", "icon": "🌿", "base_sz": 18},
-    "yeast":      {"bg": "#ab47bc", "border": "#7b1fa2", "icon": "🧫", "base_sz": 22},
-    "compound":   {"bg": "#03a9f4", "border": "#0277bd", "icon": "🧪", "base_sz": 20},
+    "beer_style":    {"bg": "#ff5722", "border": "#d84315", "icon": "🍺", "base_sz": 50},
+    "sibling_style": {"bg": "#ff8a65", "border": "#e64a19", "icon": "🏷️", "base_sz": 30},
+    "ingredient":    {"bg": "#ffc107", "border": "#ff8f00", "icon": "🌾", "base_sz": 18},
+    "hop":           {"bg": "#4caf50", "border": "#2e7d32", "icon": "🌿", "base_sz": 18},
+    "yeast":         {"bg": "#ab47bc", "border": "#7b1fa2", "icon": "🧫", "base_sz": 22},
+    "compound":      {"bg": "#03a9f4", "border": "#0277bd", "icon": "🧪", "base_sz": 20},
 }
 
 
@@ -239,6 +240,40 @@ def build_style_subgraph(style_name: str, max_nodes: int = 35, n_hops: int = 2) 
     for src, dst, w in hop3_edges:
         if src in G and dst in G:
             G.add_edge(src, dst, weight=w)
+
+    # ── Sibling styles: other styles sharing the same ingredients ─
+    # Reverse-traverse: ingredient/hop/yeast → which other styles use it?
+    sibling_score: dict[str, int] = defaultdict(int)    # style_name → shared count
+    sibling_shared: dict[str, set[str]] = defaultdict(set)  # style_name → set of shared node names
+
+    selected_indices_by_type: dict[str, set[int]] = {}
+    for ntype in ["ingredient", "hop", "yeast"]:
+        selected_indices_by_type[ntype] = {idx for idx, _, _ in top_neighbours.get(ntype, [])}
+
+    for rel, dst_type in edge_meta:
+        et = ("beer_style", rel, dst_type)
+        if et not in data.edge_types:
+            continue
+        ei = data[et].edge_index
+        dst_names_list = data[dst_type].names
+        selected_dst = selected_indices_by_type.get(dst_type, set())
+
+        for col in range(ei.shape[1]):
+            si, di = ei[0, col].item(), ei[1, col].item()
+            if di in selected_dst and si != style_idx:
+                sib_name = style_names[si]
+                sibling_score[sib_name] += 1
+                sibling_shared[sib_name].add(dst_names_list[di])
+
+    # Keep top 5 sibling styles by number of shared ingredients
+    max_siblings = 5
+    ranked_siblings = sorted(sibling_score.items(), key=lambda x: -x[1])[:max_siblings]
+
+    for sib_name, score in ranked_siblings:
+        G.add_node(sib_name, type="sibling_style", weight=score)
+        for shared_node in sibling_shared[sib_name]:
+            if shared_node in G:
+                G.add_edge(sib_name, shared_node, weight=1)
 
     # ── Render PyVis ─────────────────────────────────────────────
     net = Network(
