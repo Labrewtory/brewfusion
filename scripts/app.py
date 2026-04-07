@@ -42,9 +42,29 @@ def format_recipe_readable(raw_text: str) -> str:
     text = text.replace("<MIN>", "min")
     text = text.replace("<L>", "L")
     
-    # Generic spaces and clean up
-    text = " ".join(word for word in text.split(" ") if word)
+    # Clean up material tokens (e.g. AMERICAN___S -> American S)
+    words = text.split(" ")
+    cleaned_words = []
+    for w in words:
+        # If it's a token with underscores, not a structural marker
+        if "_" in w and not w.startswith("[") and not w.endswith("]"):
+            cw = " ".join(part.capitalize() for part in w.split("_") if part)
+            cleaned_words.append(cw)
+        else:
+            cleaned_words.append(w)
+            
+    text = " ".join(cleaned_words)
     return text
+
+# --- Quick Style Map (Mock mapping for common styles) ---
+COMMON_STYLES = {
+    0: "0 - American Light Lager",
+    14: "14 - American Pale Ale",
+    20: "20 - Imperial IPA",
+    42: "42 - Belgian Tripel",
+    100: "100 - Stout / Porter",
+    130: "130 - Pilsner"
+}
 
 # --- UI Setup ---
 st.set_page_config(
@@ -72,12 +92,18 @@ ibu = st.sidebar.slider("International Bitterness Units (IBU)", min_value=0.0, m
 color = st.sidebar.slider("Color (SRM)", min_value=0.0, max_value=40.0, value=4.0, step=0.1)
 
 st.sidebar.header("🏷️ Categorical Style")
+style_display = st.sidebar.selectbox(
+    "Style Category (Common presets)",
+    options=list(COMMON_STYLES.keys()),
+    format_func=lambda x: COMMON_STYLES[x],
+    index=4
+)
 style_idx = st.sidebar.number_input(
-    "Style Index (0-179)", 
+    "Or manually set Style Index (0-179)", 
     min_value=0, 
     max_value=179, 
-    value=100,
-    help="BJCP Style Index mapping. E.g., 100 often maps to Stout/Porter varieties."
+    value=style_display,
+    help="Overrides dropdown if changed manually."
 )
 
 st.sidebar.header("🧠 Generation Logic")
