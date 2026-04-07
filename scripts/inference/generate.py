@@ -131,29 +131,29 @@ def generate(
     cfg_scale: float = 3.0,
     num_samples: int = 1,
     checkpoint_path: str | Path | None = None,
+    tokenizer_path: str | Path | None = None,
+    loaded_components: tuple | None = None,
 ) -> list[str]:
-    """Generate recipe sequences with specified scalar constraints.
-
+    """Generate a recipe string from conditions.
     Args:
         abv: Target ABV (0-15)
         ibu: Target IBU (0-120)
         color: Target Color SRM (0-50)
-        style_idx: Beer style index (0-179)
+        style: Beer style index (0-179)
         cfg_scale: CFG guidance strength (higher = more constrained)
         num_samples: Number of recipes to generate
         checkpoint_path: Path to model checkpoint
-
-    Returns:
-        List of generated recipe strings
+        tokenizer_path: Path to tokenizer JSON
+        loaded_components: Tuple of (model, token_emb, scheduler, tokenizer) to avoid reloading
     """
-    if checkpoint_path is None:
-        checkpoint_path = PROJECT_ROOT / "data" / "models" / "dit_best.pt"
-
-    tokenizer_path = (
-        PROJECT_ROOT / "src" / "brewfusion" / "data" / "brew_tokenizer.json"
-    )
-
-    model, token_emb, scheduler, tokenizer = load_model(checkpoint_path, tokenizer_path)
+    if loaded_components is None:
+        if checkpoint_path is None:
+            checkpoint_path = PROJECT_ROOT / "data" / "models" / "dit_best.pt"
+        if tokenizer_path is None:
+            tokenizer_path = PROJECT_ROOT / "src" / "brewfusion" / "data" / "brew_tokenizer.json"
+        model, token_emb, scheduler, tokenizer = load_model(checkpoint_path, tokenizer_path)
+    else:
+        model, token_emb, scheduler, tokenizer = loaded_components
 
     # Load GNN memory for cross-attention
     gnn_emb_path = GRAPH_DIR / "gnn_embeddings.pt"

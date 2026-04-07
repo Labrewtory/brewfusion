@@ -10,6 +10,7 @@ dependencies = [
     "rdkit>=2024.9.6",
     "requests>=2.33.1",
     "scikit-learn>=1.8.0",
+    "streamlit>=1.56.0",
     "tokenizers>=0.22.2",
     "torch>=2.11.0",
     "torch-geometric>=2.6.1",
