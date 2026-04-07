@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 import sys
+import json
 from pathlib import Path
 
 # Add project root to sys.path so we can import brewfusion
@@ -56,15 +57,18 @@ def format_recipe_readable(raw_text: str) -> str:
     text = " ".join(cleaned_words)
     return text
 
-# --- Quick Style Map (Mock mapping for common styles) ---
-COMMON_STYLES = {
-    0: "0 - American Light Lager",
-    14: "14 - American Pale Ale",
-    20: "20 - Imperial IPA",
-    42: "42 - Belgian Tripel",
-    100: "100 - Stout / Porter",
-    130: "130 - Pilsner"
-}
+# Load real style registry (V1.1)
+try:
+    registry_path = CFG_ROOT / "src" / "brewfusion" / "data" / "style_registry.json"
+    with open(registry_path, "r", encoding="utf-8") as f:
+        _style_dict = json.load(f)
+        # Flip dictionary: idx -> style_name
+        STYLE_REGISTRY = {idx: f"{idx} - {name}" for name, idx in _style_dict.items()}
+        # Sort by idx
+        STYLE_REGISTRY = dict(sorted(STYLE_REGISTRY.items()))
+except Exception as e:
+    # Safe fallback just in case
+    STYLE_REGISTRY = {0: "0 - Default"}
 
 # --- UI Setup ---
 st.set_page_config(
@@ -93,15 +97,15 @@ color = st.sidebar.slider("Color (SRM)", min_value=0.0, max_value=40.0, value=4.
 
 st.sidebar.header("🏷️ Categorical Style")
 style_display = st.sidebar.selectbox(
-    "Style Category (Common presets)",
-    options=list(COMMON_STYLES.keys()),
-    format_func=lambda x: COMMON_STYLES[x],
-    index=4
+    "Style Category (Loaded from Database)",
+    options=list(STYLE_REGISTRY.keys()),
+    format_func=lambda x: STYLE_REGISTRY[x],
+    index=14 if 14 in STYLE_REGISTRY else 0
 )
 style_idx = st.sidebar.number_input(
-    "Or manually set Style Index (0-179)", 
+    "Or manually set Style Index", 
     min_value=0, 
-    max_value=179, 
+    max_value=max(list(STYLE_REGISTRY.keys())) if STYLE_REGISTRY else 179,
     value=style_display,
     help="Overrides dropdown if changed manually."
 )

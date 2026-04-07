@@ -55,12 +55,19 @@ def generate_sequences(json_path: str | None = None) -> list[str]:
         data = json.load(f)
     logger.info("Loaded %d recipes", len(data))
 
+    registry_path = PROJECT_ROOT / "src" / "brewfusion" / "data" / "style_registry.json"
+    logger.info("Loading style registry from %s...", registry_path)
+    with open(registry_path, "r", encoding="utf-8") as f:
+        style_registry = json.load(f)
+
     sequences: list[str] = []
 
     for _key, recipe in data.items():
         style = recipe.get("style", "")
         if not isinstance(style, str) or style.strip() in ("", "--"):
             continue
+        style = style.strip()
+        style_idx = style_registry.get(style, 0) # Fallback to 0 if unknown
 
         # Scalar targets
         abv = _safe_float(recipe.get("abv"))
@@ -75,6 +82,7 @@ def generate_sequences(json_path: str | None = None) -> list[str]:
         seq.append(f"[TARGET_ABV] {abv:.1f}")
         seq.append(f"[TARGET_IBU] {ibu:.1f}")
         seq.append(f"[TARGET_COLOR] {color:.1f}")
+        seq.append(f"[TARGET_STYLE] {style_idx}")
 
         # Mash step
         seq.append("[MASH_STEP]")

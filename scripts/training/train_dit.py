@@ -49,12 +49,17 @@ LR = 3e-4
 CFG_DROP_PROB = 0.15
 NUM_TIMESTEPS = 1000
 GNN_MEMORY_SIZE = 256  # K-means centroids for cross-attention efficiency
+EPOCHS = 50
+LEARNING_RATE = 1e-4
 TRAIN_BATCH_SIZE = 64  # GPU utilization was only 3.7/8GB at bs=16
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Regex to extract scalar targets from sequence text
+# E.g.: [START] [TARGET_ABV] 6.0 [TARGET_IBU] 40.0 [TARGET_COLOR] 10.0 [TARGET_STYLE] 14 [MASH_STEP] ...
 _TARGET_RE = re.compile(
-    r"\[TARGET_ABV\]\s+([\d.]+)\s+\[TARGET_IBU\]\s+([\d.]+)\s+\[TARGET_COLOR\]\s+([\d.]+)"
+    r"\[TARGET_ABV\]\s+([\d\.]+)\s+"
+    r"\[TARGET_IBU\]\s+([\d\.]+)\s+"
+    r"\[TARGET_COLOR\]\s+([\d\.]+)\s+"
+    r"\[TARGET_STYLE\]\s+([\d]+)"
 )
 
 
@@ -107,11 +112,11 @@ class DiffusionSequenceDataset(Dataset):
             abv = float(match.group(1))
             ibu = float(match.group(2))
             color = float(match.group(3))
+            style_idx = float(match.group(4))
 
             abv_norm = min(abv / 15.0, 1.0)
             ibu_norm = min(ibu / 120.0, 1.0)
             color_norm = min(color / 50.0, 1.0)
-            style_idx = 0.0
 
             encoded = tokenizer.encode(line)
             ids = encoded.ids[:max_length]
@@ -148,7 +153,7 @@ class DiffusionSequenceDataset(Dataset):
 # ──────────────────────────────────────────────
 # Training
 # ──────────────────────────────────────────────
-def train() -> None:
+def train(epochs: int = EPOCHS) -> None:
     """Main DiT training loop."""
     # ── Paths ──
     train_path = PROJECT_ROOT / "data" / "processed" / "train_sequences.txt"
@@ -249,7 +254,9 @@ def train() -> None:
     # ── Training loop ──
     best_val_loss = float("inf")
 
-    for epoch in range(1, EPOCHS + 1):
+    logger.info("Starting training on %s (Batch size: %d, Epochs: %d)...", DEVICE, TRAIN_BATCH_SIZE, epochs)
+
+    for epoch in range(1, epochs + 1):
         model.train()
         token_emb.train()
         total_loss = 0.0
@@ -348,7 +355,7 @@ def train() -> None:
     # ── Save final model ──
     torch.save(
         {
-            "epoch": EPOCHS,
+            "epoch": epochs,
             "model": model.state_dict(),
             "token_emb": token_emb.state_dict(),
             "scheduler": scheduler.state_dict(),
@@ -359,4 +366,8 @@ def train() -> None:
 
 
 if __name__ == "__main__":
-    train()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--epochs", type=int, default=EPOCHS)
+    args = parser.parse_args()
+    train(epochs=args.epochs)

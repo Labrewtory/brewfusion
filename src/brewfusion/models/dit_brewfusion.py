@@ -157,7 +157,7 @@ class BrewFusionDiT(nn.Module):
         num_layers: int = 6,
         seq_len: int = 64,
         num_scalars: int = 3,  # ABV, IBU, Color
-        num_styles: int = 180,
+        num_styles: int = 200,
         style_emb_dim: int = 32,
     ):
         super().__init__()
