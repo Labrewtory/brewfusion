@@ -1,0 +1,89 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{multirow}
+
+\title{BrewFusion: Sequence-Based Graph-Conditioned Diffusion Transformers with Hybrid Chemical Embeddings for Temporal Beer Recipe Generation}
+
+\author{
+Junyeong Yong\\
+\textit{Independent Researcher}\\
+Tokyo, Japan
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The paradigm of AI-driven computational gastronomy has historically struggled to bridge the gap between rigorous physical chemistry and flexible sequence generation. Early preliminary approaches utilizing continuous latent diffusion algorithms to generate static tripartite recipes (Malt-Hop-Yeast) through K-Nearest Neighbors (KNN) mapping faced challenges with ``empty latent voids'' and a lack of temporal processing structure. In this paper, we present BrewFusion, a comprehensive architectural framework utilizing Graph-Conditioned Diffusion Transformers (DiT). We build our foundational knowledge ontology upon 170,000+ real-world JSON recipes and invoke PubChem API to extract SMILES matrices for 120+ vital brewing compounds, yielding over 46,000 distinct chemical integration edges. To seamlessly merge natural token sequence generation with this rich topological chemistry, we introduce a \textit{Hybrid Token Embedding} mechanism: structural grammar sequences utilize traditional learned embeddings, while ingredient tokens bypass baseline initialization to directly inject frozen 64-dimensional Graph Neural Network (GNN) embeddings deep into the cross-attention pipelines. Regulated by AdaLN-Zero scalar conditioning metrics (ABV, IBU, Color), our framework dictates complex thermodynamic time-series sequences (e.g., precise fractional mass additions linked to exact boil schedules), advancing automated algorithmic recipe design from static clustering into structurally robust, chemistry-aware process engineering.
+\end{abstract}
+
+\section{Introduction}
+Deep generative modeling deployed within physical and biochemical sciences often faces a profound bottleneck in bridging discrete structural sequence data with continuous physical phenomena. Initial theoretical explorations into machine-guided beer recipe design hypothesized that a multi-relational heterogeneous graph of brewing ingredients, when paired with baseline point diffusion algorithms, could optimally formulate a beverage. However, restricting formulation to a strictly static feature-denoising problem consisting of limited categorical constraints can fail to capture the thermodynamic realities of brewing: a sequential timeline of fractional mass additions, boiling heat durations, and fermentation cooling stages.
+
+BrewFusion profoundly reconceptualizes the physical sequence matrix as an extended architectural string array. We fully transition to sequence-level Diffusion Transformers (DiT, Peebles \& Xie 2023). Because classical Natural Language Processing (NLP) tokenizers actively strip biochemical terminology of its underlying physical properties---processing the Hop variety ``Cascade'' merely as an arbitrary statistical word token---we enforce physical grounding through a Hybrid Token Embedding system that translates topological dynamics from a massive ingredient network explicitly into the attention map of the sequence transformer.
+
+Our core contributions represent a paradigm shift in cheminformatic algorithmic recipe design: (1) A robust PubChem-anchored heterogeneous graph housing $>$46,000 precise chemical interaction edges alongside algorithmic Normalized Pointwise Mutual Information (NPMI) structural co-occurrence links; (2) Assured ontological unity through the Hybrid Token Embedding matrix bridging discrete Byte-Pair Encoding (BPE) text arrays and frozen GNN topological coordinates; and (3) The deployment of a DiT-based recipe generation engine guided by AdaLN-Zero matrices capable of producing highly complex, time-accurate thermodynamic pipelines adhering to rigid multi-scalar biochemical constraints.
+
+\section{Methodology}
+
+\subsection{Ontological Expansion and the Heterogeneous Graph Matrix}
+We constructed our core dataset from 179,455 complex, multi-stage recipes mapping 21,260 physical ingredients (15,106 individual grains, 4,627 hops, and 1,527 yeasts).
+
+To ensure high-resolution chemical interactions and absolute chemical coherence throughout the pipeline, we actively automated structural molecular retrieval leveraging the National Center for Biotechnology Information's PubChem database API. Extracting distinct SMILES formulations for over 120 essential metabolic brewing compounds (Terpenes, Esters, Phenols, key Maillard products) dramatically expanded the baseline algorithmic topology: computational Hop$\rightarrow$Compound linking edges grew into the thousands, and functional Yeast$\rightarrow$Compound pathways evolved to exceed 45,000 distinct pathways. To further emulate human brewing instinct systematically, overlapping ingredient synergies (e.g., natural hop blend traditions) were permanently encoded into the graph via algorithmic NPMI co-occurrence mathematical evaluations explicitly inspired by architecture in \textit{FlavorDiffusion} (Seo et al., 2025).
+
+\subsection{Chemical Structure Prediction (CSP) Encoding}
+This vast and dense interrelational graph was aggressively compressed through a custom HeteroGNN sequentially minimizing dual loss algorithms: classical Link-Prediction algorithms and robust Chemical Structure Prediction (CSP) loss parameters. This forces the resulting continuous 64-dimensional ingredient latent embedding pool to operate as strict predictive topological reservoirs for absolute 1024-bit Morgan Fingerprint molecular structures. Thus, out-of-distribution ingredients uniquely plot geometrically according to foundational molecular facts rather than biased statistical frequencies.
+
+\subsection{Sequence Tokenization and Diffusion Processing}
+BrewFusion operates strictly within mapped chronological timeline sequences characterized by precise mathematical arrays:
+\[ \texttt{[BOIL] 60 \textless MIN\textgreater \ [HOP] Cascade 15.0 \textless G\textgreater} \]
+
+To maintain categorical processing bounds without violently fragmenting scientific naming conventions, a curated BPE Tokenizer strictly identifies structural procedural markers (e.g., \texttt{[MALT]}, \texttt{\textless KG\textgreater}, \texttt{[MASH\_STEP]}) while preserving fundamental ingredient lexemes. The temporal denoising step parameter $x_t$ iterates purely across these discrete token bounds, circumventing the mapping limitations frequently encountered in continuous-to-discrete approximation algorithms.
+
+\subsection{Hybrid Chemical Interaction Interface}
+To successfully route GNN knowledge structures into standard sequence transformers, the Hybrid Token Embedding network was engineered. Under this architectural paradigm, traditional text embedding logic protocols split mathematically:
+\begin{itemize}
+    \item \textbf{Structural Process Tokens} initialize dynamically utilizing standard $\mathcal{N}(0, \sigma)$ arrays optimizing structural formulation generation.
+    \item \textbf{Scientific Ingredient Tokens} execute an override intercept, retrieving their absolutely precise 64-dimensional chemical coordinate directly from the rigid, non-editable \textit{gnn\_embeddings.pt} computational matrix. 
+\end{itemize}
+
+A trainable projection layer mathematically translates these purely frozen topological arrays to map correctly against the internal dimensional matrices parameterizing the DiT unit. This permanently guards against traditional NLP convergence flaws such as Catastrophic Forgetting, protecting the fundamental chemistry of the formula map.
+
+\subsection{Continuous Parameter Mapping Configuration}
+Final sequence generation arrays condition scalar inputs (Alcohol by Volume, International Bitterness Units, Color indices) via extremely robust AdaLN-Zero (Adaptive Layer Normalization) mapping methodologies. Rather than simple context concatenation, derived scale and shift coefficients mathematically constrain attention matrices directly within deep model layers, yielding timeline fractions fully structurally compliant with extreme numeric demands.
+
+\section{Experiments: Arbitration of Conflicting Constraints}
+A profound challenge in conditioned sequence generation is the logical arbitration of conflicting inputs. To evaluate the DiT's capacity to navigate physical impossibilities, we devised the ``White Stout Anomaly'' test. The model was conditioned on a categorical style index corresponding to a \textit{Stout} (traditionally demanding highly roasted, dark malts) simultaneously paired with an opposing continuous scalar parameter demanding extremely pale properties ($\text{Color} = 4.0 \text{ SRM}$).
+
+By modulating the Classifier-Free Guidance (CFG) scale governing the AdaLN-Zero projection, we audited the model's decision boundary:
+\begin{enumerate}
+    \item \textbf{Unconstrained Prior ($\mathbf{CFG = 1.0}$)}: Without amplified scalar guidance, the model favors its latent categorical style prior. The generated sequence ignores the $4.0 \text{ SRM}$ scalar limit, utilizing heavily roasted dark malts and caramelizing syrups customary to the Stout class.
+    \item \textbf{Parametric Compromise ($\mathbf{CFG = 3.5}$)}: Under standard guidance, the scalar conditioning aggressively overrides the style prior. Strikingly, the model successfully simulates a ``White Stout''; it wholly omits dark roasted barley tokens in favor of pale base malts, while synthesizing complex physical adjuncts (e.g., citrus peels, experimental hops) to legally reconstruct the categorical style's functional flavor profile without violating the strict photometric constraint.
+    \item \textbf{Over-Constrained Alignment ($\mathbf{CFG \geq 7.0}$)}: At extreme scalar amplifications, the thermodynamic color parameter forcibly crushes the categorical style embeddings, yielding a token sequence strictly resembling a standard Pale Ale with complete disregard for the original Stout request.
+\end{enumerate}
+
+These findings empirically confirm that our AdaLN-Zero mapping coupled with CFG acts as a highly controllable generative pivot. BrewFusion does not experience catastrophic structural collapse when faced with contradictory physics parameters; it mathematically balances the trade-off between conceptual recipe design and immutable thermodynamic limits.
+
+\section{Discussion and Limitations}
+While BrewFusion effectively pivots algorithmic recipe generation toward topological sequence diffusion, we acknowledge several critical limitations that define the boundary between sophisticated data mimicking and true thermodynamic simulation. First, regarding the Hybrid Token Embedding, compressing 120+ compounds and 46,000+ structural edges into a 64-dimensional space introduces a latent bottleneck. Furthermore, the trainable projection layer bridging frozen GNN coordinates with the DiT matrix risks diluting absolute chemical uniqueness in favor of sequence loss minimization. 
+
+Secondly, the ``White Stout'' anomaly test demonstrates logical parameter-shifting, yet lacks empirical sensory and chemical validation. It remains an open question whether the model's substitution of roasted malts with adjuncts (e.g., citrus peels) physically reconstitutes the Stout's functional flavor profile via genuine molecular synergy or merely outputs a statistically plausible hallucination. Relatedly, while our Chemical Structure Prediction (CSP) forces molecular reality onto nodes, our reliance on Normalized Pointwise Mutual Information (NPMI) edges injects statistical popularity biases back into the graph, creating a philosophical tension between absolute molecular facts and historical brewing trends.
+
+\section{Conclusion and Future Work}
+BrewFusion bridges conceptual sequence layout logic with explicitly routed structural chemistry. However, we clarify that the current model does not inherently execute fundamental thermodynamic physics calculations; rather, it performs highly complex structural pattern matching heavily conditioned on chemical topology. To evolve from a generative proxy into a true process engineering engine, future work must focus on empirical cross-validation against physical brewing simulation data and extensive sensory bench-testing to verify the functional viability of extremities discovered via Classifier-Free Guidance.
+
+\section{Code Availability}
+The complete source code, parsing pipelines, graph generation matrices, diffusion training scripts, and curated chemical database logic utilized in this study are publicly available. The repository can be accessed at: \url{https://github.com/Labrewtory/brewfusion}.
+
+\section{Acknowledgments}
+The author deeply acknowledges the integration of an advanced Agentic AI coding assistant in a collaborative dual-programming and deep research capacity throughout the development of this repository. Together, the fundamental formulation of the Hybrid Token processing mechanism, robust big-data chemical processing pipelines leveraging PubChem API networks, cross-architectural integration surrounding the Diffusion Transformer, and active drafting of this publication text were co-researched, verified, and systematically implemented. All physical structures, modeling variables, and mathematical parameters were evaluated and validated meticulously by the primary author.
+
+\end{document}

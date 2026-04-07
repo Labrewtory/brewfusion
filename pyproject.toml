@@ -1,0 +1,30 @@
+[project]
+name = "brewfusion"
+version = "0.1.0"
+description = "BrewFusion: Graph-Conditioned Diffusion Transformer for Brewing Recipe Generation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.4.4",
+    "pandas>=3.0.2",
+    "rdkit>=2024.9.6",
+    "requests>=2.33.1",
+    "scikit-learn>=1.8.0",
+    "tokenizers>=0.22.2",
+    "torch>=2.11.0",
+    "torch-geometric>=2.6.1",
+]
+
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.15.9",
+    "ty>=0.0.29",
+]
