@@ -47,7 +47,7 @@ def load_model(
         seq_len=DIT_SEQ_LEN,
         num_scalars=3,
         num_styles=180,
-        style_emb_dim=32,
+        style_emb_dim=64,
     ).to(DEVICE)
 
     gnn_emb_path = GRAPH_DIR / "gnn_embeddings.pt"
