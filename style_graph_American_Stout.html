@@ -1,0 +1,164 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #f8f9fa;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#ff5722", "border": "#d84315", "highlight": {"background": "#ff5722", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American Stout", "label": "\ud83c\udf7a American Stout", "shape": "dot", "size": 45, "title": "Type: Style\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Cascade", "label": "\ud83c\udf3f Cascade", "shape": "dot", "size": 55, "title": "Type: Hop\\nWeight: 711"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Myrcene", "label": "\ud83e\uddea Myrcene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Farnesene", "label": "\ud83e\uddea Farnesene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "East Kent Goldings", "label": "\ud83c\udf3f East Kent Goldings", "shape": "dot", "size": 44, "title": "Type: Hop\\nWeight: 482"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Humulene", "label": "\ud83e\uddea Humulene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Willamette", "label": "\ud83c\udf3f Willamette", "shape": "dot", "size": 41, "title": "Type: Hop\\nWeight: 439"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Fuggles", "label": "\ud83c\udf3f Fuggles", "shape": "dot", "size": 41, "title": "Type: Hop\\nWeight: 430"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Caryophyllene", "label": "\ud83e\uddea Caryophyllene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Magnum", "label": "\ud83c\udf3f Magnum", "shape": "dot", "size": 40, "title": "Type: Hop\\nWeight: 404"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Pinene", "label": "\ud83e\uddea Pinene", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Chinook", "label": "\ud83c\udf3f Chinook", "shape": "dot", "size": 36, "title": "Type: Hop\\nWeight: 327"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Centennial", "label": "\ud83c\udf3f Centennial", "shape": "dot", "size": 34, "title": "Type: Hop\\nWeight: 291"}, {"color": {"background": "#03a9f4", "border": "#0277bd", "highlight": {"background": "#03a9f4", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Linalool", "label": "\ud83e\uddea Linalool", "shape": "dot", "size": 25, "title": "Type: Compound\\nWeight: 10"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Northern Brewer", "label": "\ud83c\udf3f Northern Brewer", "shape": "dot", "size": 34, "title": "Type: Hop\\nWeight: 288"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Nugget", "label": "\ud83c\udf3f Nugget", "shape": "dot", "size": 33, "title": "Type: Hop\\nWeight: 272"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Columbus", "label": "\ud83c\udf3f Columbus", "shape": "dot", "size": 32, "title": "Type: Hop\\nWeight: 259"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Cluster", "label": "\ud83c\udf3f Cluster", "shape": "dot", "size": 25, "title": "Type: Hop\\nWeight: 114"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Simcoe", "label": "\ud83c\udf3f Simcoe", "shape": "dot", "size": 25, "title": "Type: Hop\\nWeight: 112"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Warrior", "label": "\ud83c\udf3f Warrior", "shape": "dot", "size": 25, "title": "Type: Hop\\nWeight: 108"}, {"color": {"background": "#4caf50", "border": "#2e7d32", "highlight": {"background": "#4caf50", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Kent Goldings", "label": "\ud83c\udf3f Kent Goldings", "shape": "dot", "size": 25, "title": "Type: Hop\\nWeight: 104"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Pale 2-Row", "label": "\ud83c\udf3e American - Pale 2-Row", "shape": "dot", "size": 71, "title": "Type: Malt\\nWeight: 1036"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Chocolate", "label": "\ud83c\udf3e American - Chocolate", "shape": "dot", "size": 71, "title": "Type: Malt\\nWeight: 1026"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Flaked Oats", "label": "\ud83c\udf3e Flaked Oats", "shape": "dot", "size": 68, "title": "Type: Malt\\nWeight: 973"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Roasted Barley", "label": "\ud83c\udf3e American - Roasted Barley", "shape": "dot", "size": 67, "title": "Type: Malt\\nWeight: 940"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "United Kingdom - Maris Otter Pale", "label": "\ud83c\udf3e United Kingdom - Maris Otter Pale", "shape": "dot", "size": 47, "title": "Type: Malt\\nWeight: 541"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Lactose (Milk Sugar)", "label": "\ud83c\udf3e Lactose (Milk Sugar)", "shape": "dot", "size": 41, "title": "Type: Malt\\nWeight: 439"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Caramel / Crystal 120L", "label": "\ud83c\udf3e American - Caramel / Crystal 120L", "shape": "dot", "size": 38, "title": "Type: Malt\\nWeight: 376"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Caramel / Crystal 60L", "label": "\ud83c\udf3e American - Caramel / Crystal 60L", "shape": "dot", "size": 38, "title": "Type: Malt\\nWeight: 375"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "Flaked Barley", "label": "\ud83c\udf3e Flaked Barley", "shape": "dot", "size": 37, "title": "Type: Malt\\nWeight: 352"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Black Malt", "label": "\ud83c\udf3e American - Black Malt", "shape": "dot", "size": 35, "title": "Type: Malt\\nWeight: 317"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "United Kingdom - Chocolate", "label": "\ud83c\udf3e United Kingdom - Chocolate", "shape": "dot", "size": 34, "title": "Type: Malt\\nWeight: 285"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "United Kingdom - Roasted Barley", "label": "\ud83c\udf3e United Kingdom - Roasted Barley", "shape": "dot", "size": 33, "title": "Type: Malt\\nWeight: 279"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "American - Caramel / Crystal 80L", "label": "\ud83c\udf3e American - Caramel / Crystal 80L", "shape": "dot", "size": 31, "title": "Type: Malt\\nWeight: 228"}, {"color": {"background": "#ffc107", "border": "#ff8f00", "highlight": {"background": "#ffc107", "border": "#212121"}}, "font": {"color": "#333333"}, "id": "United Kingdom - Black Patent", "label": "\ud83c\udf3e United Kingdom - Black Patent", "shape": "dot", "size": 30, "title": "Type: Malt\\nWeight: 219"}]);
+                  edges = new vis.DataSet([{"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 71", "to": "Cascade", "value": 71}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 48", "to": "East Kent Goldings", "value": 48}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 43", "to": "Willamette", "value": 43}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 43", "to": "Fuggles", "value": 43}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 40", "to": "Magnum", "value": 40}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 32", "to": "Chinook", "value": 32}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 29", "to": "Centennial", "value": 29}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 28", "to": "Northern Brewer", "value": 28}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 27", "to": "Nugget", "value": 27}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 25", "to": "Columbus", "value": 25}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 11", "to": "Cluster", "value": 11}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 11", "to": "Simcoe", "value": 11}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 10", "to": "Warrior", "value": 10}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 10", "to": "Kent Goldings", "value": 10}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 103", "to": "American - Pale 2-Row", "value": 103}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 102", "to": "American - Chocolate", "value": 102}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 97", "to": "Flaked Oats", "value": 97}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 94", "to": "American - Roasted Barley", "value": 94}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 54", "to": "United Kingdom - Maris Otter Pale", "value": 54}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 43", "to": "Lactose (Milk Sugar)", "value": 43}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 37", "to": "American - Caramel / Crystal 120L", "value": 37}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 37", "to": "American - Caramel / Crystal 60L", "value": 37}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 35", "to": "Flaked Barley", "value": 35}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 31", "to": "American - Black Malt", "value": 31}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 28", "to": "United Kingdom - Chocolate", "value": 28}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 27", "to": "United Kingdom - Roasted Barley", "value": 27}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 22", "to": "American - Caramel / Crystal 80L", "value": 22}, {"color": "#cfd8dc", "from": "American Stout", "title": "Co-occurrence / Mapping: 21", "to": "United Kingdom - Black Patent", "value": 21}, {"color": "#cfd8dc", "from": "Cascade", "title": "Co-occurrence / Mapping: 5", "to": "Myrcene", "value": 5}, {"color": "#cfd8dc", "from": "Cascade", "title": "Co-occurrence / Mapping: 5", "to": "Farnesene", "value": 5}, {"color": "#cfd8dc", "from": "Myrcene", "title": "Co-occurrence / Mapping: 5", "to": "Centennial", "value": 5}, {"color": "#cfd8dc", "from": "Myrcene", "title": "Co-occurrence / Mapping: 5", "to": "Simcoe", "value": 5}, {"color": "#cfd8dc", "from": "Farnesene", "title": "Co-occurrence / Mapping: 5", "to": "Fuggles", "value": 5}, {"color": "#cfd8dc", "from": "East Kent Goldings", "title": "Co-occurrence / Mapping: 5", "to": "Humulene", "value": 5}, {"color": "#cfd8dc", "from": "Humulene", "title": "Co-occurrence / Mapping: 5", "to": "Magnum", "value": 5}, {"color": "#cfd8dc", "from": "Fuggles", "title": "Co-occurrence / Mapping: 5", "to": "Caryophyllene", "value": 5}, {"color": "#cfd8dc", "from": "Magnum", "title": "Co-occurrence / Mapping: 5", "to": "Pinene", "value": 5}, {"color": "#cfd8dc", "from": "Pinene", "title": "Co-occurrence / Mapping: 5", "to": "Simcoe", "value": 5}, {"color": "#cfd8dc", "from": "Centennial", "title": "Co-occurrence / Mapping: 5", "to": "Linalool", "value": 5}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "forceAtlas2Based": {
+            "avoidOverlap": 1,
+            "centralGravity": 0.01,
+            "damping": 0.9,
+            "gravitationalConstant": -50,
+            "springConstant": 0.08,
+            "springLength": 150
+        },
+        "solver": "forceAtlas2Based",
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

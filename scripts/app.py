@@ -84,8 +84,12 @@ constraints in the sidebar, and the **Graph-Conditioned Diffusion Transformer (D
 generate a complete timeline of ingredients using hybrid chemical embeddings.
 """)
 
-# Load models implicitly
-loaded_components = get_model_components()
+# Setup Global Application Tabs
+app_tab1, app_tab2 = st.tabs(["🚀 Recipe Generator", "🕸️ GNN Style Physical Graph"])
+
+with app_tab1:
+    # Load models implicitly
+    loaded_components = get_model_components()
 
 # --- Sidebar ---
 st.sidebar.header("⚙️ Target Constraints")
@@ -158,3 +162,33 @@ if st.button("🍻 Generate Recipe Matrix", type="primary"):
                     
         except Exception as e:
             st.error(f"Error during generation: {e}")
+
+with app_tab2:
+    st.header("🔬 Heterogeneous Flavor Graph")
+    st.markdown("""
+    Explore the raw, interconnected physics beneath each beer style. 
+    The **Graph Neural Network (GNN)** learns 64-dimensional embeddings from this exact network structure (styles, hops, malts, and flavor compounds like Myrcene). 
+    This physically grounds the DiT generation rather than relying on arbitrary word associations!
+    """)
+    
+    st.info("💡 **Tip:** Drag the nodes around to play with the Barnes-Hut gravity simulation, or zoom/scroll to explore deep connections.")
+    
+    graph_style_idx = st.selectbox(
+        "Select a Style to Map",
+        options=list(STYLE_REGISTRY.keys()),
+        format_func=lambda x: STYLE_REGISTRY[x],
+        index=14 if 14 in STYLE_REGISTRY else 0,
+        key="graph_style_selector"
+    )
+    
+    if st.button("🌌 Render Gravity Graph", type="secondary"):
+        with st.spinner("Parsing PyG Heterodata & Simulating Barnes-Hut Physics..."):
+            from scripts.visualize_style_graph import build_style_subgraph
+            import streamlit.components.v1 as components
+            style_name = STYLE_REGISTRY[graph_style_idx].split(" - ")[1]
+            try:
+                html_str = build_style_subgraph(style_name, max_nodes=35)
+                st.success(f"Successfully simulated subgraph for {style_name}!")
+                components.html(html_str, height=850)
+            except Exception as e:
+                st.error(f"Could not render graph: {e}")

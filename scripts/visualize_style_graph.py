@@ -1,5 +1,7 @@
 import json
 import networkx as nx
+from pyvis.network import Network
+import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 from pathlib import Path
 from collections import defaultdict
@@ -92,22 +94,61 @@ def build_style_subgraph(style_name: str, max_nodes: int = 25):
             color_map.append("grey")
             size_map.append(500)
             
-    pos = nx.spring_layout(G, k=0.9, iterations=50, seed=42)
+    # -- 4. Save Interactive PyVis HTML --
+    net = Network(height="800px", width="100%", bgcolor="#f8f9fa", font_color="#333333", directed=False)
+    net.force_atlas_2based(spring_length=150, damping=0.9, overlap=1)
+    # Enable Physics
+    net.toggle_physics(True)
     
-    nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=size_map, edgecolors="white", linewidths=2)
-    nx.draw_networkx_edges(G, pos, edge_color="#b0bec5", alpha=0.6, width=1.5)
+    for idx, node in enumerate(G.nodes()):
+        t = G.nodes[node].get("type", "")
+        w = G.nodes[node].get("weight", 10)
+        c = color_map[idx]
+        sw = size_map[idx]
+        
+        # Scale for pyvis rendering (size mapping)
+        if t == "style":
+            sz = 45
+            border = "#d84315"
+            icon = "🍺 "
+        elif t == "hop":
+            sz = 20 + w // 20
+            border = "#2e7d32"
+            icon = "🌿 "
+        elif t == "malt":
+            sz = 20 + w // 20
+            border = "#ff8f00"
+            icon = "🌾 "
+        elif t == "compound":
+            sz = 25
+            border = "#0277bd"
+            icon = "🧪 "
+        else:
+            sz = 15
+            border = "grey"
+            icon = ""
+            
+        net.add_node(
+            node, 
+            label=f"{icon}{node}", 
+            title=f"Type: {t.title()}\\nWeight: {w}", 
+            size=sz,
+            color={"background": c, "border": border, "highlight": {"background": c, "border": "#212121"}},
+            font={"color": "#212121", "size": 16 if t=="style" else 12, "face": "sans-serif"}
+        )
+        
+    for u, v, data in G.edges(data=True):
+        ew = data.get("weight", 1)
+        net.add_edge(u, v, value=ew, color="#cfd8dc", title=f"Co-occurrence / Mapping: {ew}")
+        
+    out_html_path = root / f"style_graph_{style_name.replace(' ', '_')}.html"
+    net.save_graph(str(out_html_path))
     
-    # Labels
-    font_opts = {"font_size": 11, "font_weight": "bold", "font_family": "sans-serif"}
-    nx.draw_networkx_labels(G, pos, **font_opts)
-    
-    plt.title(f"Heterogeneous Subgraph: [{style_name}]", fontsize=18, fontweight="bold")
-    plt.axis('off')
-    
-    plt.tight_layout()
-    out_path = root / f"style_graph_{style_name.replace(' ', '_')}.png"
-    plt.savefig(out_path, dpi=300, bbox_inches='tight', facecolor="#f8f9fa")
-    print(f"Graph saved to {out_path}")
+    with open(out_html_path, "r", encoding="utf-8") as f:
+        html_str = f.read()
+        
+    return html_str
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
